@@ -1,4 +1,5 @@
 #include "stack.hpp"
+#include "types.hpp"
 #include <gtest/gtest.h>
 
 using namespace fizzy;
@@ -47,4 +48,43 @@ TEST(stack, drop_and_peek)
     stack.drop();
     EXPECT_EQ(stack.size(), 0);
     EXPECT_TRUE(stack.empty());
+}
+
+TEST(asan, string)
+{
+    std::string s;
+    const auto e = 'x';
+    s.reserve(2);
+    EXPECT_GE(s.capacity(), 2);
+    EXPECT_EQ(s.size(), 0);
+    s.push_back(e);
+    EXPECT_EQ(s[0], e);
+
+    EXPECT_NE(s[1], e);
+}
+
+TEST(asan, bytes)
+{
+    fizzy::bytes s;
+    const auto e = 'x';
+    s.reserve(2);
+    EXPECT_GE(s.capacity(), 2);
+    EXPECT_EQ(s.size(), 0);
+    s.push_back(e);
+    EXPECT_EQ(s[0], e);
+
+    EXPECT_NE(s[1], e);
+}
+
+TEST(asan, vector)
+{
+    std::vector<char> s;
+    const auto e = 'x';
+    s.reserve(2);
+    EXPECT_GE(s.capacity(), 2);
+    EXPECT_EQ(s.size(), 0);
+    s.push_back(e);
+    EXPECT_EQ(s[0], e);
+
+    EXPECT_NE(s[1], e);
 }
