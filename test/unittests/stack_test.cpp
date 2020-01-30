@@ -53,27 +53,15 @@ TEST(stack, drop_and_peek)
 TEST(asan, string)
 {
     std::string s;
-    const auto e = 'x';
-    s.reserve(2);
-    EXPECT_GE(s.capacity(), 2);
-    EXPECT_EQ(s.size(), 0);
-    s.push_back(e);
-    EXPECT_EQ(s[0], e);
-
-    EXPECT_NE(s[1], e);
+    s.resize(100);
+    EXPECT_NE(s[100], 1);
 }
 
 TEST(asan, bytes)
 {
     fizzy::bytes s;
-    const auto e = 'x';
-    s.reserve(2);
-    EXPECT_GE(s.capacity(), 2);
-    EXPECT_EQ(s.size(), 0);
-    s.push_back(e);
-    EXPECT_EQ(s[0], e);
-
-    EXPECT_NE(s[1], e);
+    s.resize(100);
+    EXPECT_NE(s[100], 1);
 }
 
 TEST(asan, vector)
