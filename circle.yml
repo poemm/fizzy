@@ -177,6 +177,9 @@ jobs:
           name: "Install standard libraries"
           working_directory: "~"
           command: |
+
+            gcc -march=native -E -v - </dev/null 2>&1 | grep cc1
+
             export DEBIAN_FRONTEND=noninteractive
 
             # Remove all default sources
