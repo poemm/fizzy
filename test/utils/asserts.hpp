@@ -15,12 +15,12 @@ MATCHER(Traps, "")
 
 MATCHER(Result, "empty result")
 {
-    return !arg.trapped && arg.stack.size() == 0;
+    return !arg.trapped && !arg.result.has_value();
 }
 
 MATCHER_P(Result, value, "")
 {
-    return !arg.trapped && arg.stack.size() == 1 && arg.stack[0] == uint64_t(value);
+    return !arg.trapped && arg.result.has_value() && *arg.result == uint64_t(value);
 }
 
 #define EXPECT_THROW_MESSAGE(stmt, ex_type, expected)                                        \

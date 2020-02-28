@@ -17,7 +17,8 @@ uint64_t call_table_func(Instance& instance, size_t idx)
 {
     const auto& elem = (*instance.table)[idx];
     const auto res = elem->function(instance, {}, 0);
-    return res.stack.front();
+    // ASSERT_TRUE(res.result.has_value());
+    return *res.result;
 }
 }  // namespace
 

@@ -17,9 +17,9 @@ struct execution_result
 {
     // true if execution resulted in a trap
     bool trapped;
-    // the resulting stack (e.g. return values)
-    // NOTE: this can be either 0 or 1 items
-    std::vector<uint64_t> stack;
+    // the return value
+    // FIXME: rename to "value"
+    std::optional<uint64_t> result;
 };
 
 struct Instance;

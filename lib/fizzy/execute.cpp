@@ -302,11 +302,11 @@ bool invoke_function(
 
     const auto num_outputs = func_type.outputs.size();
     // NOTE: we can assume these two from validation
-    assert(ret.stack.size() == num_outputs);
     assert(num_outputs <= 1);
+    assert(ret.result.has_value() == num_outputs);
     // Push back the result
     if (num_outputs != 0)
-        stack.push(ret.stack[0]);
+        stack.push(*ret.result);
 
     return true;
 }
@@ -1567,8 +1567,10 @@ execution_result execute(
 
 end:
     assert(labels.empty() || trap);
-    // move allows to return derived Stack<uint64_t> instance into base vector<uint64_t> value
-    return {trap, std::move(stack)};
+    if (stack.empty())
+        return {trap, std::nullopt};
+    else
+        return {trap, stack.pop()};
 }
 
 execution_result execute(const Module& module, FuncIdx func_idx, std::vector<uint64_t> args)

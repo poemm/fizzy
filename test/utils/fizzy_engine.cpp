@@ -84,9 +84,8 @@ std::optional<WasmEngine::FuncRef> FizzyEngine::find_function(std::string_view n
 WasmEngine::Result FizzyEngine::execute(
     WasmEngine::FuncRef func_ref, const std::vector<uint64_t>& args)
 {
-    const auto [trapped, result_stack] =
+    const auto [trapped, result] =
         fizzy::execute(*m_instance, static_cast<uint32_t>(func_ref), args);
-    assert(result_stack.size() <= 1);
-    return {trapped, !result_stack.empty() ? result_stack.back() : std::optional<uint64_t>{}};
+    return {trapped, result};
 }
 }  // namespace fizzy::test
