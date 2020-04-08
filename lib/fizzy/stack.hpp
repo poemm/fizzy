@@ -55,7 +55,7 @@ public:
     explicit OperandStack(size_t max_stack_height)
       : m_top{nullptr} /* temporarily */, m_storage{new uint64_t[max_stack_height]}
     {
-        shrink(0);
+        m_top = m_storage.get() - 1;
     }
 
     OperandStack(const OperandStack&) = delete;
