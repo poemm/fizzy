@@ -44,25 +44,39 @@ public:
 
 class OperandStack
 {
+    static constexpr auto small_storage_size = 256 / sizeof(uint64_t);
+
     /// The pointer to the top item, or below the stack bottom if stack is empty.
     uint64_t* m_top;
 
-    /// The storage for items.
-    std::unique_ptr<uint64_t[]> m_storage;
+    uint64_t* m_bottom;
+
+    uint64_t m_small_storage[small_storage_size];
+
+    /// The unbounded storage for items.
+    std::unique_ptr<uint64_t[]> m_large_storage;
 
 public:
     /// Default constructor. Sets the top item pointer to below the stack bottom.
     explicit OperandStack(size_t max_stack_height)
-      : m_top{nullptr} /* temporarily */, m_storage{new uint64_t[max_stack_height]}
     {
-        m_top = m_storage.get() - 1;
+        if (max_stack_height <= small_storage_size)
+        {
+            m_bottom = &m_small_storage[0];
+        }
+        else
+        {
+            m_large_storage = std::make_unique<uint64_t[]>(max_stack_height);
+            m_bottom = &m_large_storage[0];
+        }
+        m_top = m_bottom - 1;
     }
 
     OperandStack(const OperandStack&) = delete;
     OperandStack& operator=(const OperandStack&) = delete;
 
     /// The current number of items on the stack (aka stack height).
-    size_t size() noexcept { return static_cast<size_t>(m_top + 1 - &m_storage[0]); }
+    size_t size() noexcept { return static_cast<size_t>(m_top + 1 - m_bottom); }
 
     /// Returns the reference to the top item.
     /// Requires non-empty stack.
@@ -99,7 +113,7 @@ public:
     {
         assert(size <= this->size());
         // For size == 0, the m_top will point below the storage.
-        m_top = m_storage.get() + (size - 1);
+        m_top = m_bottom + (size - 1);
     }
 };
 }  // namespace fizzy
