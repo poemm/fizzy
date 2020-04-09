@@ -135,7 +135,7 @@ TEST(stack, clear_on_empty)
 
 TEST(operand_stack, construct)
 {
-    OperandStack stack{0};
+    OperandStack stack{0, 0};
     EXPECT_THAT(stack.size(), 0);
     stack.shrink(0);
     EXPECT_THAT(stack.size(), 0);
@@ -143,7 +143,7 @@ TEST(operand_stack, construct)
 
 TEST(operand_stack, top)
 {
-    OperandStack stack{1};
+    OperandStack stack{0, 1};
     EXPECT_THAT(stack.size(), 0);
 
     stack.push(1);
@@ -167,7 +167,7 @@ TEST(operand_stack, top)
 
 TEST(operand_stack, small)
 {
-    OperandStack stack{3};
+    OperandStack stack{0, 3};
     EXPECT_THAT(stack.size(), 0);
 
     stack.push(1);
@@ -196,7 +196,7 @@ TEST(operand_stack, small)
 TEST(operand_stack, large)
 {
     constexpr auto max_height = 33;
-    OperandStack stack{max_height};
+    OperandStack stack{0, max_height};
 
     for (unsigned i = 0; i < max_height; ++i)
         stack.push(i);
@@ -210,7 +210,7 @@ TEST(operand_stack, large)
 TEST(operand_stack, shrink)
 {
     constexpr auto max_height = 60;
-    OperandStack stack{max_height};
+    OperandStack stack{0, max_height};
 
     for (unsigned i = 0; i < max_height; ++i)
         stack.push(i);

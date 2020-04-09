@@ -629,10 +629,11 @@ execution_result execute(
     const auto& code = instance.module.codesec[code_idx];
     auto* const memory = instance.memory.get();
 
-    std::vector<uint64_t> locals = std::move(args);
-    locals.resize(locals.size() + code.local_count);
+    const auto num_locals = args.size() + code.local_count;
+    OperandStack stack{num_locals, static_cast<size_t>(code.max_stack_height)};
 
-    OperandStack stack{static_cast<size_t>(code.max_stack_height)};
+    for (size_t i = 0; i < args.size(); ++i)
+        stack.local(i) = args[i];
 
     Stack<LabelContext> labels;
 
@@ -847,22 +848,22 @@ execution_result execute(
         case Instr::local_get:
         {
             const auto idx = read<uint32_t>(immediates);
-            assert(idx <= locals.size());
-            stack.push(locals[idx]);
+            assert(idx <= num_locals);
+            stack.push(stack.local(idx));
             break;
         }
         case Instr::local_set:
         {
             const auto idx = read<uint32_t>(immediates);
-            assert(idx <= locals.size());
-            locals[idx] = stack.pop();
+            assert(idx <= num_locals);
+            stack.local(idx) = stack.pop();
             break;
         }
         case Instr::local_tee:
         {
             const auto idx = read<uint32_t>(immediates);
-            assert(idx <= locals.size());
-            locals[idx] = stack.top();
+            assert(idx <= num_locals);
+            stack.local(idx) = stack.top();
             break;
         }
         case Instr::global_get:

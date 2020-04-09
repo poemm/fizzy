@@ -51,6 +51,8 @@ class OperandStack
 
     uint64_t* m_bottom;
 
+    uint64_t* m_locals;
+
     uint64_t m_small_storage[small_storage_size];
 
     /// The unbounded storage for items.
@@ -58,22 +60,30 @@ class OperandStack
 
 public:
     /// Default constructor. Sets the top item pointer to below the stack bottom.
-    explicit OperandStack(size_t max_stack_height)
+    explicit OperandStack(size_t num_locals, size_t max_stack_height)
     {
-        if (max_stack_height <= small_storage_size)
+        const auto storage_size_required = num_locals + max_stack_height;
+
+        uint64_t* storage;
+        if (storage_size_required <= small_storage_size)
         {
-            m_bottom = &m_small_storage[0];
+            storage = &m_small_storage[0];
         }
         else
         {
-            m_large_storage = std::make_unique<uint64_t[]>(max_stack_height);
-            m_bottom = &m_large_storage[0];
+            m_large_storage = std::make_unique<uint64_t[]>(storage_size_required);
+            storage = &m_large_storage[0];
         }
+
+        m_locals = storage;
+        m_bottom = m_locals + num_locals;
         m_top = m_bottom - 1;
     }
 
     OperandStack(const OperandStack&) = delete;
     OperandStack& operator=(const OperandStack&) = delete;
+
+    uint64_t& local(size_t index) noexcept { return m_locals[index]; }
 
     /// The current number of items on the stack (aka stack height).
     size_t size() noexcept { return static_cast<size_t>(m_top + 1 - m_bottom); }
