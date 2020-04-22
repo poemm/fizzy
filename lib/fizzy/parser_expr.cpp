@@ -62,9 +62,11 @@ parser_result<uint8_t> parse_blocktype(const uint8_t* pos, const uint8_t* end)
 }
 }  // namespace
 
-parser_result<Code> parse_expr(const uint8_t* pos, const uint8_t* end, bool have_memory)
+parser_result<Code> parse_expr(const uint8_t* pos, const uint8_t* end, const Module& module)
 {
     Code code;
+
+    const auto have_memory = !module.memorysec.empty() || !module.imported_memory_types.empty();
 
     // The stack of control frames allowing to distinguish between block/if/else and label
     // instructions as defined in Wasm Validation Algorithm.
