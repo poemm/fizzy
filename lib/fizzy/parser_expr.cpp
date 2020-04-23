@@ -426,9 +426,25 @@ parser_result<Code> parse_expr(const uint8_t* pos, const uint8_t* end, const Mod
 
         case Instr::call_indirect:
         {
-            uint32_t imm;
-            std::tie(imm, pos) = leb128u_decode<uint32_t>(pos, end);
-            push(code.immediates, imm);
+            // TODO check table exists
+
+            FuncIdx type_idx;
+            std::tie(type_idx, pos) = leb128u_decode<uint32_t>(pos, end);
+
+            if (type_idx >= module.typesec.size())
+                throw validation_error{"unknown type"};
+
+            const auto& func_type = module.typesec[type_idx];
+            const auto stack_height_required = static_cast<int>(func_type.inputs.size());
+
+            if (frame.stack_height < stack_height_required && !frame.unreachable)
+                throw validation_error{"stack underflow"};
+
+            const auto stack_height_change =
+                static_cast<int>(func_type.outputs.size()) - stack_height_required;
+            frame.stack_height += stack_height_change;
+
+            push(code.immediates, type_idx);
 
             if (pos == end)
                 throw parser_error{"Unexpected EOF"};
