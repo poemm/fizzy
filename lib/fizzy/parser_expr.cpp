@@ -1,4 +1,5 @@
 #include "instructions.hpp"
+#include "module.hpp"
 #include "parser.hpp"
 #include <cassert>
 #include <stack>
@@ -67,13 +68,6 @@ parser_result<Code> parse_expr(const uint8_t* pos, const uint8_t* end, const Mod
     Code code;
 
     const auto have_memory = !module.memorysec.empty() || !module.imported_memory_types.empty();
-
-    std::vector<FuncType> function_types(module.imported_function_types);
-    for (const auto& func_type_index : module.funcsec)
-    {
-        assert(func_type_index < module.typesec.size());
-        function_types.emplace_back(module.typesec[func_type_index]);
-    }
 
     // The stack of control frames allowing to distinguish between block/if/else and label
     // instructions as defined in Wasm Validation Algorithm.
@@ -413,10 +407,10 @@ parser_result<Code> parse_expr(const uint8_t* pos, const uint8_t* end, const Mod
             FuncIdx func_idx;
             std::tie(func_idx, pos) = leb128u_decode<uint32_t>(pos, end);
 
-            if (func_idx >= function_types.size())
+            if (func_idx >= module.imported_function_types.size() + module.funcsec.size())
                 throw validation_error{"unknown function"};
 
-            const auto& func_type = function_types[func_idx];
+            const auto& func_type = function_type(module, func_idx);
             const auto stack_height_required = static_cast<int>(func_type.inputs.size());
 
             if (frame.stack_height < stack_height_required && !frame.unreachable)
